@@ -34,7 +34,7 @@ public:
       ros_image->is_bigendian = cuda_msg->is_bigendian;
       ros_image->data.resize(cuda_msg->height * ros_image->step);
       cudaMemcpy(
-        ros_image->data.data(), cuda_msg->data, ros_image->height * ros_image->step,
+        ros_image->data.data(), cuda_msg->data.get(), ros_image->height * ros_image->step,
         cudaMemcpyDeviceToHost);
 
       pub_->publish(std::move(ros_image));

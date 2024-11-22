@@ -25,13 +25,11 @@ struct rclcpp::TypeAdapter<cuda_blackboard::CudaImage, sensor_msgs::msg::Image>
     destination.step = source.step;
     destination.is_bigendian = source.is_bigendian;
 
-    // When actually implementing this, it should be cuda !
     RCLCPP_DEBUG(rclcpp::get_logger("CudaImage"), "Converting to ROS message");
     destination.data.resize(source.height * source.step * sizeof(uint8_t));
     cudaMemcpy(
-      destination.data.data(), source.data, source.height * source.step * sizeof(uint8_t),
+      destination.data.data(), source.data.get(), source.height * source.step * sizeof(uint8_t),
       cudaMemcpyDeviceToHost);
-    // memcpy(destination.data.data(), source.data, source.height * source.step * sizeof(uint8_t));
   }
 
   static void convert_to_custom(const ros_message_type & source, custom_type & destination)
@@ -46,7 +44,7 @@ struct rclcpp::TypeAdapter<cuda_blackboard::CudaImage, sensor_msgs::msg::Image>
     cudaMalloc(
       reinterpret_cast<void **>(&destination.data), source.height * source.step * sizeof(uint8_t));
     cudaMemcpy(
-      destination.data, source.data.data(), source.height * source.step * sizeof(uint8_t),
+      destination.data.get(), source.data.data(), source.height * source.step * sizeof(uint8_t),
       cudaMemcpyHostToDevice);
   }
 };
@@ -69,19 +67,9 @@ struct rclcpp::TypeAdapter<cuda_blackboard::CudaPointCloud2, sensor_msgs::msg::P
     destination.row_step = source.row_step;
     destination.is_dense = source.is_dense;
 
-    std::vector<uint8_t> host_output_points(source.height * source.width * source.point_step);
-    std::vector<uint8_t> host_output_bytes(source.height * source.width * source.point_step);
-
-    cudaMemcpy(
-      host_output_points.data(), source.data, source.height * source.width * source.point_step,
-      cudaMemcpyDeviceToHost);
-    cudaMemcpy(
-      host_output_bytes.data(), source.data, source.height * source.width * source.point_step,
-      cudaMemcpyDeviceToHost);
-
     destination.data.resize(source.height * source.width * source.point_step);
     cudaMemcpy(
-      destination.data.data(), source.data,
+      destination.data.data(), source.data.get(),
       source.height * source.width * source.point_step * sizeof(uint8_t), cudaMemcpyDeviceToHost);
   }
 
@@ -101,7 +89,7 @@ struct rclcpp::TypeAdapter<cuda_blackboard::CudaPointCloud2, sensor_msgs::msg::P
       reinterpret_cast<void **>(&destination.data),
       source.height * source.width * source.point_step * sizeof(uint8_t));
     cudaMemcpy(
-      destination.data, source.data.data(),
+      destination.data.get(), source.data.data(),
       source.height * source.width * source.point_step * sizeof(uint8_t), cudaMemcpyHostToDevice);
   }
 };

@@ -31,12 +31,6 @@ CudaBlackboardSubscriber<T>::CudaBlackboardSubscriber(
     1.0, rclcpp::QoS(1), std::bind(&CudaBlackboardSubscriber<T>::instanceIdCallback, this, _1),
     sub_options);
 
-  /* negotiated_sub_->add_supported_callback<NegotiationStruct<typename T::ros_type>>(
-    0.1,
-    rclcpp::QoS(1),
-    callback_,
-    sub_options); */
-
   if (add_compatible_sub) {
     compatible_sub_ =
       node.create_subscription<T>(topic_name, rclcpp::SensorDataQoS(), callback_, sub_options);

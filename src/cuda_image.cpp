@@ -14,9 +14,9 @@ CudaImage::CudaImage(const CudaImage & image) : sensor_msgs::msg::Image(image)
     rclcpp::get_logger("CudaImage"),
     "CudaImage copy constructor called. This should be avoided and is most likely a design error.");
 
-  cudaMalloc(reinterpret_cast<void **>(&data), image.height * image.step * sizeof(uint8_t));
+  data = make_unique<uint8_t[]>(image.height * image.step * sizeof(uint8_t));
   cudaMemcpy(
-    data, image.data, image.height * image.step * sizeof(uint8_t), cudaMemcpyDeviceToDevice);
+    data.get(), image.data.get(), image.height * image.step * sizeof(uint8_t), cudaMemcpyDeviceToDevice);
 }
 
 CudaImage::CudaImage(const sensor_msgs::msg::Image & source)
@@ -28,15 +28,14 @@ CudaImage::CudaImage(const sensor_msgs::msg::Image & source)
   step = source.step;
   is_bigendian = source.is_bigendian;
 
-  cudaMalloc(reinterpret_cast<void **>(&data), source.height * source.step * sizeof(uint8_t));
+  data = make_unique<uint8_t[]>(source.height * source.step * sizeof(uint8_t));
   cudaMemcpy(
-    data, source.data.data(), source.height * source.step * sizeof(uint8_t),
+    data.get(), source.data.data(), source.height * source.step * sizeof(uint8_t),
     cudaMemcpyHostToDevice);
 }
 
 CudaImage::~CudaImage()
 {
-  cudaFree(data);
 }
 
 }  // namespace cuda_blackboard
