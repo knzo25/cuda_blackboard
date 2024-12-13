@@ -3,7 +3,7 @@
 <package format="3">
   <name>cuda_blackboard</name>
   <version>0.1.0</version>
-  <description>Cuda blackboard package</description>
+  <description>The cuda_blackboard package</description>
   <maintainer email="kenzo.lobos@tier4.jp">Kenzo Lobos-Tsunekawa</maintainer>
 
   <license>Apache 2</license>
